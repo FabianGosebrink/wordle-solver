@@ -25,20 +25,14 @@ function filterWordByCharsNotOnCorrectPlace(filteredWords) {
   }
 
   const filtered = filteredWords.map((word) => {
-    const wordNotContainsExcludedCharsOnIndex =
+    const wordDoesNotContainAnyExcludedCharsOnIndex =
       includeLettersNotOnCorrectPlace.every(({ character, notOnIndexes }) => {
-        return notOnIndexes.every((notIndex) => {
-          const wordContainsCharAtIndex = containsCharAtIndex(
-            word,
-            character,
-            notIndex
-          );
-
-          return !wordContainsCharAtIndex;
-        });
+        return notOnIndexes.every(
+          (notIndex) => !containsCharAtIndex(word, character, notIndex)
+        );
       });
 
-    return wordNotContainsExcludedCharsOnIndex ? word : null;
+    return wordDoesNotContainAnyExcludedCharsOnIndex ? word : null;
   });
 
   return filtered.filter(Boolean);
