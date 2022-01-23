@@ -1,0 +1,95 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false"
+  >
+    <mat-toolbar>Menu</mat-toolbar>
+    <mat-nav-list>
+      <a mat-list-item href="#">Link 1</a>
+      <a mat-list-item href="#">Link 2</a>
+      <a mat-list-item href="#">Link 3</a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async"
+      >
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span>wordle-helper</span>
+    </mat-toolbar>
+    <div>
+      <mat-form-field class="example-chip-list" appearance="fill">
+        <mat-label>Already typed words</mat-label>
+        <mat-chip-list #chipList aria-label="Already typed words">
+          <mat-chip
+            *ngFor="let word of alreadyTypedWrongWords"
+            (removed)="remove(word)"
+          >
+            {{ word }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <input
+            placeholder="New word..."
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="addOnBlur"
+            (matChipInputTokenEnd)="add($event)"
+          />
+        </mat-chip-list>
+      </mat-form-field>
+    </div>
+    <div>
+      <form [formGroup]="wordleForm">
+        <ng-container formArrayName="includes">
+          <div *ngFor="let _ of includes.controls; index as i">
+            <ng-container [formGroupName]="i">
+              <mat-form-field appearance="fill">
+                <mat-label>Character</mat-label>
+                <input matInput formControlName="character" />
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>Is correct on index</mat-label>
+                <input matInput formControlName="index" />
+              </mat-form-field>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <ng-container formArrayName="excludes">
+          <div *ngFor="let _ of excludes.controls; index as i">
+            <ng-container [formGroupName]="i">
+              <mat-form-field appearance="fill">
+                <mat-label>Character</mat-label>
+                <input matInput formControlName="character" />
+              </mat-form-field>
+              <mat-form-field appearance="fill">
+                <mat-label>Indexes</mat-label>
+                <input matInput formControlName="notOnIndexes" />
+              </mat-form-field>
+            </ng-container>
+          </div>
+        </ng-container>
+      </form>
+    </div>
+
+    {{ result | json }}
+
+    <!-- <mat-chip-list #chipList aria-label="Already typed words">
+      <mat-chip *ngFor="let word of result">
+        {{ word }}
+      </mat-chip>
+    </mat-chip-list> -->
+  </mat-sidenav-content>
+</mat-sidenav-container>
