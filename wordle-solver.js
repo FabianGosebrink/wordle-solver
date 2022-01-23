@@ -33,6 +33,7 @@ function filterWordByCharsNotOnCorrectPlace(filteredWords) {
             character,
             notIndex
           );
+
           return !wordContainsCharAtIndex;
         });
       });
