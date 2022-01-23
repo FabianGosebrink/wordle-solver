@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const { resourceLimits } = require('worker_threads');
 
 const alreadyTypedWrongWords = ['soare', 'print', 'trips', 'grift', 'crise'];
 const includeLettersOnCorrectPlace = [
