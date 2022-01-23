@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { resourceLimits } = require('worker_threads');
 
 const alreadyTypedWrongWords = ['soare', 'print', 'trips', 'grift', 'crise'];
 const includeLettersOnCorrectPlace = [
@@ -19,12 +20,12 @@ const includeLettersNotOnCorrectPlace = [
   { character: 'f', notOnIndexes: [3] },
 ];
 
-function filterWordByCharsNotOnCorrectPlace(words2) {
+function filterWordByCharsNotOnCorrectPlace(filteredWords) {
   if (includeLettersNotOnCorrectPlace.length === 0) {
-    return words2;
+    return filteredWords;
   }
 
-  const filtered = words2.map((word) => {
+  const filtered = filteredWords.map((word) => {
     const wordNotContainsExcludedCharsOnIndex =
       includeLettersNotOnCorrectPlace.every(({ character, notOnIndexes }) => {
         return notOnIndexes.every((notIndex) => {
@@ -37,27 +38,23 @@ function filterWordByCharsNotOnCorrectPlace(words2) {
         });
       });
 
-    if (wordNotContainsExcludedCharsOnIndex) {
-      return word;
-    }
+    return wordNotContainsExcludedCharsOnIndex ? word : null;
   });
 
   return filtered.filter(Boolean);
 }
 
-function filterWordByCharsOnCorrectPlace(words3) {
+function filterWordByCharsOnCorrectPlace(filteredWords) {
   if (includeLettersOnCorrectPlace.length === 0) {
-    return words3;
+    return filteredWords;
   }
 
-  const filtered = words3.map((word) => {
+  const filtered = filteredWords.map((word) => {
     const wordContainsEveryCharAtIndex = includeLettersOnCorrectPlace.every(
       ({ character, index }) => containsCharAtIndex(word, character, index)
     );
 
-    if (wordContainsEveryCharAtIndex) {
-      return word;
-    }
+    return wordContainsEveryCharAtIndex ? word : null;
   });
 
   return filtered.filter(Boolean);
@@ -69,28 +66,30 @@ function containsCharAtIndex(word, character, index) {
   return allCharsOfWord[index] === character;
 }
 
-function removeAlreadyTypedWrongWords(words3) {
-  return words3.filter((word) => !alreadyTypedWrongWords.includes(word));
+function removeAlreadyTypedWrongWords(words) {
+  return words.filter((word) => !alreadyTypedWrongWords.includes(word));
 }
 
-function main() {
+function readWords() {
   const rawWords = fs.readFileSync('./words.json');
-  const words = JSON.parse(rawWords);
 
+  return JSON.parse(rawWords);
+}
+
+function filterWords(words) {
   const wordsWithoutAlreadyTypedWrong = removeAlreadyTypedWrongWords(words);
   const wordsWithCharAtCorrectPlace = filterWordByCharsOnCorrectPlace(
     wordsWithoutAlreadyTypedWrong
   );
 
-  const wordsWithIncludingLetters = filterWordByCharsNotOnCorrectPlace(
-    wordsWithCharAtCorrectPlace
-  );
+  return filterWordByCharsNotOnCorrectPlace(wordsWithCharAtCorrectPlace);
+}
 
-  console.log(
-    'result',
-    wordsWithIncludingLetters,
-    wordsWithIncludingLetters.length
-  );
+function main() {
+  const words = readWords();
+  const result = filterWords(words);
+
+  console.log('result', result, result.length);
 }
 
 main();
