@@ -16,14 +16,13 @@ export class WordleHelperService {
     includeCharsWithIndex: CharacterIndexIncludes[]
   ): string[] {
     const words = WORDS;
-    const result = this.filterWords(
+
+    return this.filterWords(
       words,
       excludeChars,
       includeChars,
       includeCharsWithIndex
     );
-
-    return result;
   }
 
   private includeChars(words: string[], includeChars: string[]) {

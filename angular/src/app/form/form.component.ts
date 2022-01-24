@@ -14,7 +14,6 @@ export class FormComponent implements OnInit {
   excludeChars: string[] = [];
   includeChars: string[] = [];
   includeIndexChars: CharacterIndexIncludes[] = [];
-
   wordleForm: FormGroup;
   includeCharsWithIndex: FormArray;
 

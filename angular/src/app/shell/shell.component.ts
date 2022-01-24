@@ -42,6 +42,7 @@ export class ShellComponent implements OnInit {
       mappedIncludedChars,
       mappedIncludedCharsWithIndex
     );
+
     this.isLoading = false;
   }
 

@@ -16,6 +16,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormComponent } from './form/form.component';
 import { ResultComponent } from './result/result.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [AppComponent, ShellComponent, FormComponent, ResultComponent],
@@ -33,6 +34,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatInputModule,
     ReactiveFormsModule,
     MatProgressBarModule,
+    ScrollingModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
