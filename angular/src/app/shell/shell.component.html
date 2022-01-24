@@ -27,33 +27,21 @@
       </button>
       <span>wordle-helper</span>
     </mat-toolbar>
-    <div>
-      <mat-form-field class="example-chip-list" appearance="fill">
-        <mat-label>Already typed words</mat-label>
-        <mat-chip-list #chipList aria-label="Already typed words">
-          <mat-chip
-            *ngFor="let word of alreadyTypedWrongWords"
-            (removed)="remove(word)"
-          >
-            {{ word }}
-            <button matChipRemove>
-              <mat-icon>cancel</mat-icon>
-            </button>
-          </mat-chip>
-          <input
-            placeholder="New word..."
-            [matChipInputFor]="chipList"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            [matChipInputAddOnBlur]="addOnBlur"
-            (matChipInputTokenEnd)="add($event)"
-          />
-        </mat-chip-list>
-      </mat-form-field>
-    </div>
+
     <div>
       <form [formGroup]="wordleForm">
-        <ng-container formArrayName="includes">
-          <div *ngFor="let _ of includes.controls; index as i">
+        <mat-form-field appearance="fill">
+          <mat-label>Exclude Characters</mat-label>
+          <input matInput formControlName="excludeCharacters" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Include Characters</mat-label>
+          <input matInput formControlName="includeCharacters" />
+        </mat-form-field>
+
+        <ng-container formArrayName="includeCharsWithIndex">
+          <div *ngFor="let _ of includeCharsWithIndex.controls; index as i">
             <ng-container [formGroupName]="i">
               <mat-form-field appearance="fill">
                 <mat-label>Character</mat-label>
@@ -64,27 +52,25 @@
                 <input matInput formControlName="index" />
               </mat-form-field>
             </ng-container>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="removeFormControl(i)"
+              *ngIf="includeCharsWithIndex.controls.length > 1"
+            >
+              Remove
+            </button>
           </div>
-        </ng-container>
-
-        <ng-container formArrayName="excludes">
-          <div *ngFor="let _ of excludes.controls; index as i">
-            <ng-container [formGroupName]="i">
-              <mat-form-field appearance="fill">
-                <mat-label>Character</mat-label>
-                <input matInput formControlName="character" />
-              </mat-form-field>
-              <mat-form-field appearance="fill">
-                <mat-label>Indexes</mat-label>
-                <input matInput formControlName="notOnIndexes" />
-              </mat-form-field>
-            </ng-container>
-          </div>
+          <button mat-raised-button color="primary" (click)="addFormControl()">
+            Add new indexchar
+          </button>
         </ng-container>
       </form>
     </div>
 
-    {{ result | json }}
+    <pre>{{ wordleForm.value | json }}</pre>
+
+    <!-- {{ result | json }} -->
 
     <!-- <mat-chip-list #chipList aria-label="Already typed words">
       <mat-chip *ngFor="let word of result">

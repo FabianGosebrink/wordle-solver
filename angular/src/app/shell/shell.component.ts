@@ -3,10 +3,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
 import {
-  CharacterExcludes,
-  CharacterIncludes,
+  CharacterIndexIncludes,
   WordleHelperService,
 } from '../wordle-helper.service';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
@@ -27,13 +25,12 @@ export class ShellComponent implements OnInit {
   result = [];
   addOnBlur = true;
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
-  alreadyTypedWrongWords: string[] = ['soare'];
-  includeLettersOnCorrectPlace: CharacterIncludes[] = [];
-  includeLettersNotOnCorrectPlace: CharacterExcludes[] = [];
+  excludeChars: string[] = [];
+  includeChars: string[] = [];
+  includeIndexChars: CharacterIndexIncludes[] = [];
 
   wordleForm: FormGroup;
-  includes: FormArray;
-  excludes: FormArray;
+  includeCharsWithIndex: FormArray;
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -42,95 +39,85 @@ export class ShellComponent implements OnInit {
 
   ngOnInit(): void {
     this.updateList(
-      this.alreadyTypedWrongWords,
-      this.includeLettersOnCorrectPlace,
-      this.includeLettersNotOnCorrectPlace
+      this.excludeChars,
+      this.includeChars,
+      this.includeIndexChars
     );
     this.createForm();
 
-    this.wordleForm.valueChanges.subscribe(({ includes, excludes }) => {
-      console.log(includes);
-      console.log(excludes);
+    this.wordleForm.valueChanges.subscribe(
+      ({ excludeCharacters, includeCharacters, includeCharsWithIndex }) => {
+        console.log(includeCharsWithIndex);
+        console.log(includeCharacters);
+        console.log(excludeCharacters);
 
-      this.includeLettersOnCorrectPlace = includes;
-      this.includeLettersNotOnCorrectPlace = excludes.map(
-        ({ character, notOnIndexes }) => {
-          return {
-            character,
-            notOnIndexes: notOnIndexes.split(','),
-          } as CharacterExcludes;
-        }
-      );
+        const mappedExcludedChars = excludeCharacters
+          .split(',')
+          .filter((x) => !!x);
 
-      this.updateList(
-        this.alreadyTypedWrongWords,
-        this.includeLettersOnCorrectPlace,
-        this.includeLettersNotOnCorrectPlace
-      );
-    });
-  }
+        const mappedIncludedChars = includeCharacters
+          .split(',')
+          .filter((x) => !!x);
 
-  add(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
+        const mappedIncludedCharsWithIndex = includeCharsWithIndex.filter(
+          (x) => !!x.character
+        );
 
-    // Add our fruit
-    if (value) {
-      this.alreadyTypedWrongWords.push(value);
-    }
-
-    // Clear the input value
-    event.chipInput!.clear();
-
-    this.updateList(
-      this.alreadyTypedWrongWords,
-      this.includeLettersOnCorrectPlace,
-      this.includeLettersNotOnCorrectPlace
+        this.updateList(
+          mappedExcludedChars,
+          mappedIncludedChars,
+          mappedIncludedCharsWithIndex
+        );
+      }
     );
   }
 
-  remove(word: string): void {
-    const index = this.alreadyTypedWrongWords.indexOf(word);
+  removeFormControl(index: number) {
+    const currentFormValue = this.wordleForm.value;
 
-    if (index >= 0) {
-      this.alreadyTypedWrongWords.splice(index, 1);
-    }
+    this.includeCharsWithIndex.removeAt(index);
 
-    this.updateList(
-      this.alreadyTypedWrongWords,
-      this.includeLettersOnCorrectPlace,
-      this.includeLettersNotOnCorrectPlace
-    );
+    this.wordleForm.patchValue(currentFormValue);
   }
 
-  updateList(
-    alreadyTypedWrongWords: string[],
-    includeLettersOnCorrectPlace: CharacterIncludes[],
-    includeLettersNotOnCorrectPlace: CharacterExcludes[]
+  addFormControl() {
+    const currentFormValue = this.wordleForm.value;
+    this.includeCharsWithIndex.push(
+      new FormGroup({
+        character: new FormControl(''),
+        index: new FormControl(''),
+      })
+    );
+
+    this.wordleForm.patchValue(currentFormValue);
+  }
+
+  private updateList(
+    excludeChars: string[],
+    includeChars: string[],
+    includeLettersOnCorrectPlace: CharacterIndexIncludes[]
   ) {
     this.result = this.wordleHelper.solve(
-      alreadyTypedWrongWords,
-      includeLettersOnCorrectPlace,
-      includeLettersNotOnCorrectPlace
+      excludeChars,
+      includeChars,
+      includeLettersOnCorrectPlace
     );
   }
 
   private createForm() {
     this.wordleForm = new FormGroup({
-      includes: new FormArray([
+      excludeCharacters: new FormControl(''),
+      includeCharacters: new FormControl(''),
+      includeCharsWithIndex: new FormArray([
         new FormGroup({
           character: new FormControl(''),
           index: new FormControl(''),
         }),
       ]),
-      excludes: new FormArray([
-        new FormGroup({
-          character: new FormControl(''),
-          notOnIndexes: new FormControl(''),
-        }),
-      ]),
     });
 
-    this.includes = this.wordleForm.get('includes') as FormArray;
-    this.excludes = this.wordleForm.get('excludes') as FormArray;
+    this.includeCharsWithIndex = this.wordleForm.get(
+      'includeCharsWithIndex'
+    ) as FormArray;
   }
 }

@@ -1,75 +1,64 @@
 import { Injectable } from '@angular/core';
 import { WORDS } from './words';
 
-export interface CharacterIncludes {
+export interface CharacterIndexIncludes {
   character: string;
   index: number;
-}
-
-export interface CharacterExcludes {
-  character: string;
-  notOnIndexes: number[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class WordleHelperService {
-  // private includeLettersOnCorrectPlace = [
-  //   // { character: 'c', index: 0 },
-  //   // { character: 'r', index: 1 },
-  //   // { character: 'i', index: 2 },
-  // ];
-  // private includeLettersNotOnCorrectPlace = [
-  //   // { character: 's', notOnIndexes: [0, 4, 3] },
-  //   // { character: 'o', notOnIndexes: [1] },
-  //   // { character: 'a', notOnIndexes: [2] },
-  //   // { character: 'e', notOnIndexes: [4] },
-  //   // { character: 'n', notOnIndexes: [3] },
-  //   // { character: 't', notOnIndexes: [4, 0] },
-  //   // { character: 'g', notOnIndexes: [0] },
-  //   // { character: 'f', notOnIndexes: [3] },
-  // ];
-
   solve(
-    alreadyTypedWords: string[],
-    includeLettersOnCorrectPlace: CharacterIncludes[],
-    includeLettersNotOnCorrectPlace: CharacterExcludes[]
+    excludeChars: string[],
+    includeChars: string[],
+    includeCharsWithIndex: CharacterIndexIncludes[]
   ): string[] {
-    return this.solveInternal(
-      alreadyTypedWords,
-      includeLettersOnCorrectPlace,
-      includeLettersNotOnCorrectPlace
+    const words = WORDS;
+    const result = this.filterWords(
+      words,
+      excludeChars,
+      includeChars,
+      includeCharsWithIndex
     );
+
+    return result;
   }
 
-  private filterWordByCharsNotOnCorrectPlace(
-    filteredWords: string[],
-    includeLettersNotOnCorrectPlace: CharacterExcludes[]
-  ) {
-    if (includeLettersNotOnCorrectPlace.length === 0) {
-      return filteredWords;
+  private includeChars(words: string[], includeChars: string[]) {
+    if (includeChars.length === 0) {
+      return words;
     }
 
-    const filtered = filteredWords.map((word: string) => {
-      const wordDoesNotContainAnyExcludedCharsOnIndex =
-        includeLettersNotOnCorrectPlace.every(({ character, notOnIndexes }) => {
-          return notOnIndexes.every(
-            (notIndex) => !this.containsCharAtIndex(word, character, notIndex)
-          );
-        });
+    let toReturn = [];
 
-      return wordDoesNotContainAnyExcludedCharsOnIndex ? word : null;
-    });
+    for (const word of words) {
+      if (this.wordContainsAllOfChars(word, includeChars)) {
+        toReturn.push(word);
+      }
+    }
 
-    return filtered.filter(Boolean);
+    return toReturn;
   }
 
   private filterWordByCharsOnCorrectPlace(
     filteredWords: string[],
-    includeLettersOnCorrectPlace: CharacterIncludes[]
+    includeLettersOnCorrectPlace: CharacterIndexIncludes[]
   ): string[] {
-    if (includeLettersOnCorrectPlace.length === 0) {
+    if (!includeLettersOnCorrectPlace) {
+      return filteredWords;
+    }
+
+    if (includeLettersOnCorrectPlace?.length === 0) {
+      return filteredWords;
+    }
+
+    const hasEntriesToProcess =
+      includeLettersOnCorrectPlace.map((x) => x.character).filter((x) => !!x)
+        .length > 0;
+
+    if (!hasEntriesToProcess) {
       return filteredWords;
     }
 
@@ -91,47 +80,45 @@ export class WordleHelperService {
     return allCharsOfWord[index] === character;
   }
 
-  private removeAlreadyTypedWrongWords(
-    words: string[],
-    alreadyTypedWrongWords: string[]
-  ) {
-    return words.filter((word) => !alreadyTypedWrongWords.includes(word));
+  private excludeChars(words: string[], excludeChars: string[]): string[] {
+    if (excludeChars.length === 0) {
+      return words;
+    }
+
+    let toReturn = [];
+
+    for (const word of words) {
+      if (!this.wordContainsAnyOfChars(word, excludeChars)) {
+        toReturn.push(word);
+      }
+    }
+
+    return toReturn;
+  }
+
+  private wordContainsAnyOfChars(word: string, exludedChars: string[]) {
+    return exludedChars.some((x) => word.split('').includes(x));
+  }
+
+  private wordContainsAllOfChars(word: string, exludedChars: string[]) {
+    return exludedChars.every((x) => word.split('').includes(x));
   }
 
   private filterWords(
     words: string[],
-    alreadyTypedWrongWords: string[],
-    includeLettersOnCorrectPlace: CharacterIncludes[],
-    includeLettersNotOnCorrectPlace: CharacterExcludes[]
+    excludeChars: string[],
+    includeChars: string[],
+    includeCharsWithIndex: CharacterIndexIncludes[]
   ) {
-    const wordsWithoutAlreadyTypedWrong = this.removeAlreadyTypedWrongWords(
-      words,
-      alreadyTypedWrongWords
-    );
-    const wordsWithCharAtCorrectPlace = this.filterWordByCharsOnCorrectPlace(
-      wordsWithoutAlreadyTypedWrong,
-      includeLettersOnCorrectPlace
+    const wordsWithCharsExcluded = this.excludeChars(words, excludeChars);
+    const wordsWithCharsIncluded = this.includeChars(
+      wordsWithCharsExcluded,
+      includeChars
     );
 
-    return this.filterWordByCharsNotOnCorrectPlace(
-      wordsWithCharAtCorrectPlace,
-      includeLettersNotOnCorrectPlace
+    return this.filterWordByCharsOnCorrectPlace(
+      wordsWithCharsIncluded,
+      includeCharsWithIndex
     );
-  }
-
-  private solveInternal(
-    alreadyTypedWrongWords: string[],
-    includeLettersOnCorrectPlace: CharacterIncludes[],
-    includeLettersNotOnCorrectPlace: CharacterExcludes[]
-  ): string[] {
-    const words = WORDS;
-    const result = this.filterWords(
-      words,
-      alreadyTypedWrongWords,
-      includeLettersOnCorrectPlace,
-      includeLettersNotOnCorrectPlace
-    );
-
-    return result;
   }
 }
