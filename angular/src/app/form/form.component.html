@@ -1,0 +1,37 @@
+<form [formGroup]="wordleForm">
+  <mat-form-field appearance="fill">
+    <mat-label>Exclude Characters</mat-label>
+    <input matInput formControlName="excludeCharacters" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Include Characters</mat-label>
+    <input matInput formControlName="includeCharacters" />
+  </mat-form-field>
+
+  <ng-container formArrayName="includeCharsWithIndex">
+    <div *ngFor="let _ of includeCharsWithIndex.controls; index as i">
+      <ng-container [formGroupName]="i">
+        <mat-form-field appearance="fill">
+          <mat-label>Character</mat-label>
+          <input matInput formControlName="character" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Is correct on index</mat-label>
+          <input matInput formControlName="index" />
+        </mat-form-field>
+      </ng-container>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="removeFormControl(i)"
+        *ngIf="includeCharsWithIndex.controls.length > 1"
+      >
+        Remove
+      </button>
+    </div>
+    <button mat-raised-button color="primary" (click)="addFormControl()">
+      Add new indexchar
+    </button>
+  </ng-container>
+</form>

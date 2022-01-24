@@ -28,56 +28,18 @@
       <span>wordle-helper</span>
     </mat-toolbar>
 
-    <div>
-      <form [formGroup]="wordleForm">
-        <mat-form-field appearance="fill">
-          <mat-label>Exclude Characters</mat-label>
-          <input matInput formControlName="excludeCharacters" />
-        </mat-form-field>
+    <app-form (newResult)="onNewResult($event)"></app-form>
 
-        <mat-form-field appearance="fill">
-          <mat-label>Include Characters</mat-label>
-          <input matInput formControlName="includeCharacters" />
-        </mat-form-field>
+    <div style="margin-top: 20px">
+      <mat-progress-bar
+        mode="indeterminate"
+        *ngIf="isLoading; else resultList"
+      ></mat-progress-bar>
 
-        <ng-container formArrayName="includeCharsWithIndex">
-          <div *ngFor="let _ of includeCharsWithIndex.controls; index as i">
-            <ng-container [formGroupName]="i">
-              <mat-form-field appearance="fill">
-                <mat-label>Character</mat-label>
-                <input matInput formControlName="character" />
-              </mat-form-field>
-              <mat-form-field appearance="fill">
-                <mat-label>Is correct on index</mat-label>
-                <input matInput formControlName="index" />
-              </mat-form-field>
-            </ng-container>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="removeFormControl(i)"
-              *ngIf="includeCharsWithIndex.controls.length > 1"
-            >
-              Remove
-            </button>
-          </div>
-          <button mat-raised-button color="primary" (click)="addFormControl()">
-            Add new indexchar
-          </button>
-        </ng-container>
-      </form>
+      <ng-template #resultList
+        ><app-result [result]="result"></app-result
+      ></ng-template>
     </div>
-
-    <div>
-      <span>Found {{ result.length }} results:</span>
-
-      <mat-list role="list">
-        <mat-list-item
-          *ngFor="let item of result; trackBy: trackBy"
-          role="listitem"
-          >{{ item }}</mat-list-item
-        >
-      </mat-list>
-    </div>
+    <div></div>
   </mat-sidenav-content>
 </mat-sidenav-container>

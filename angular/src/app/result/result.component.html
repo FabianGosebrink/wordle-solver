@@ -1,0 +1,9 @@
+<span>Found {{ result.length }} results:</span>
+
+<mat-list role="list">
+  <mat-list-item
+    *ngFor="let item of result; trackBy: trackBy"
+    role="listitem"
+    >{{ item }}</mat-list-item
+  >
+</mat-list>

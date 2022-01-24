@@ -13,9 +13,12 @@ import { ShellComponent } from './shell/shell.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormComponent } from './form/form.component';
+import { ResultComponent } from './result/result.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
-  declarations: [AppComponent, ShellComponent],
+  declarations: [AppComponent, ShellComponent, FormComponent, ResultComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -29,6 +32,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
+    MatProgressBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
