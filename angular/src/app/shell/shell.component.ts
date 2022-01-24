@@ -72,6 +72,10 @@ export class ShellComponent implements OnInit {
     );
   }
 
+  trackBy(index, item) {
+    return index;
+  }
+
   removeFormControl(index: number) {
     const currentFormValue = this.wordleForm.value;
 

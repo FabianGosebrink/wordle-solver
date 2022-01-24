@@ -68,14 +68,16 @@
       </form>
     </div>
 
-    <pre>{{ wordleForm.value | json }}</pre>
+    <div>
+      <span>Found {{ result.length }} results:</span>
 
-    <!-- {{ result | json }} -->
-
-    <!-- <mat-chip-list #chipList aria-label="Already typed words">
-      <mat-chip *ngFor="let word of result">
-        {{ word }}
-      </mat-chip>
-    </mat-chip-list> -->
+      <mat-list role="list">
+        <mat-list-item
+          *ngFor="let item of result; trackBy: trackBy"
+          role="listitem"
+          >{{ item }}</mat-list-item
+        >
+      </mat-list>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
