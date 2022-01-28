@@ -1,37 +1,47 @@
-<form [formGroup]="wordleForm">
-  <mat-form-field appearance="fill">
-    <mat-label>Exclude Characters</mat-label>
-    <input matInput formControlName="excludeCharacters" />
-  </mat-form-field>
+<div class="example-container">
+  <form [formGroup]="wordleForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Exclude Characters</mat-label>
+      <input
+        matInput
+        formControlName="excludeCharacters"
+        placeholder="a,b,c,d"
+      />
+    </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Include Characters</mat-label>
-    <input matInput formControlName="includeCharacters" />
-  </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Include Characters</mat-label>
+      <input
+        matInput
+        formControlName="includeCharacters"
+        placeholder="e,f,g,h"
+      />
+    </mat-form-field>
 
-  <ng-container formArrayName="includeCharsWithIndex">
-    <div *ngFor="let _ of includeCharsWithIndex.controls; index as i">
-      <ng-container [formGroupName]="i">
-        <mat-form-field appearance="fill">
-          <mat-label>Character</mat-label>
-          <input matInput formControlName="character" />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Is correct on index</mat-label>
-          <input matInput formControlName="index" />
-        </mat-form-field>
-      </ng-container>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="removeFormControl(i)"
-        *ngIf="includeCharsWithIndex.controls.length > 1"
-      >
-        Remove
+    <ng-container formArrayName="includeCharsWithIndex">
+      <div *ngFor="let _ of includeCharsWithIndex.controls; index as i">
+        <ng-container [formGroupName]="i">
+          <mat-form-field appearance="fill">
+            <mat-label>Character</mat-label>
+            <input matInput formControlName="character" placeholder="i" />
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Is correct on index</mat-label>
+            <input matInput formControlName="index" placeholder="0" />
+          </mat-form-field>
+        </ng-container>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="removeFormControl(i)"
+          *ngIf="includeCharsWithIndex.controls.length > 1"
+        >
+          Remove
+        </button>
+      </div>
+      <button mat-raised-button color="primary" (click)="addFormControl()">
+        Add new indexchar
       </button>
-    </div>
-    <button mat-raised-button color="primary" (click)="addFormControl()">
-      Add new indexchar
-    </button>
-  </ng-container>
-</form>
+    </ng-container>
+  </form>
+</div>
