@@ -2,10 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import {
-  CharacterIndexIncludes,
-  WordleHelperService,
-} from '../wordle-helper.service';
+import { WordleHelperService } from '../services/wordle-helper.service';
+import { CharacterIndexIncludes } from '../services/character-index-includes';
 
 @Component({
   selector: 'app-shell',

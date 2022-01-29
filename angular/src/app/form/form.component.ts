@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs';
-import { CharacterIndexIncludes } from '../wordle-helper.service';
+import { CharacterIndexIncludes } from '../services/character-index-includes';
 
 @Component({
   selector: 'app-form',
@@ -17,34 +17,9 @@ export class FormComponent implements OnInit {
   wordleForm: FormGroup;
   includeCharsWithIndex: FormArray;
 
-  constructor() {}
-
   ngOnInit(): void {
     this.createForm();
-
-    this.wordleForm.valueChanges
-      .pipe(debounceTime(500))
-      .subscribe(
-        ({ excludeCharacters, includeCharacters, includeCharsWithIndex }) => {
-          const mappedExcludedChars = excludeCharacters
-            .split(',')
-            .filter((x) => !!x);
-
-          const mappedIncludedChars = includeCharacters
-            .split(',')
-            .filter((x) => !!x);
-
-          const mappedIncludedCharsWithIndex = includeCharsWithIndex.filter(
-            (x) => !!x.character
-          );
-
-          this.newResult.emit({
-            mappedExcludedChars,
-            mappedIncludedChars,
-            mappedIncludedCharsWithIndex,
-          });
-        }
-      );
+    this.subscribeToValueChanges();
   }
 
   removeFormControl(index: number) {
@@ -82,5 +57,30 @@ export class FormComponent implements OnInit {
     this.includeCharsWithIndex = this.wordleForm.get(
       'includeCharsWithIndex'
     ) as FormArray;
+  }
+
+  private subscribeToValueChanges() {
+    this.wordleForm.valueChanges
+      .pipe(debounceTime(500))
+      .subscribe(
+        ({ excludeCharacters, includeCharacters, includeCharsWithIndex }) => {
+          const mappedExcludedChars = this.mapToArray(excludeCharacters);
+
+          const mappedIncludedChars = this.mapToArray(includeCharacters);
+          const mappedIncludedCharsWithIndex = includeCharsWithIndex.filter(
+            (x) => !!x.character
+          );
+
+          this.newResult.emit({
+            mappedExcludedChars,
+            mappedIncludedChars,
+            mappedIncludedCharsWithIndex,
+          });
+        }
+      );
+  }
+
+  private mapToArray(input: string): string[] {
+    return input.split(',').filter((x) => !!x);
   }
 }
