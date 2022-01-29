@@ -98,10 +98,14 @@ export class WordleHelperService {
   }
 
   private wordContainsAnyOfChars(word: string, exludedChars: string[]) {
-    return exludedChars.some((x) => word.split('').includes(x));
+    return exludedChars.some((x) => this.wordContainsChar(word, x));
   }
 
   private wordContainsAllOfChars(word: string, exludedChars: string[]) {
-    return exludedChars.every((x) => word.split('').includes(x));
+    return exludedChars.every((x) => this.wordContainsChar(word, x));
+  }
+
+  private wordContainsChar(word: string, char: string): boolean {
+    return word.split('').includes(char);
   }
 }
