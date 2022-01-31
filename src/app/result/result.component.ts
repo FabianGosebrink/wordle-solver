@@ -12,7 +12,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResultComponent implements OnInit {
-  @Input() result: string[];
+  @Input() result: string[] = [];
 
   constructor() {}
 

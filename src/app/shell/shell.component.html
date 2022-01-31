@@ -29,9 +29,7 @@
     <app-form (newResult)="onNewResult($event)"></app-form>
 
     <div style="margin-top: 20px">
-      <ng-template #resultList
-        ><app-result [result]="result"></app-result
-      ></ng-template>
+      <app-result [result]="result"></app-result>
     </div>
     <div></div>
   </mat-sidenav-content>
