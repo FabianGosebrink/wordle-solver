@@ -1,7 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs';
-import { CharacterIndexIncludes } from '../services/character-index-includes';
+import {
+  IndexCharacter,
+  MultipleIndexCharacter,
+} from '../services/character-index-includes';
 
 @Component({
   selector: 'app-form',
@@ -13,24 +16,25 @@ export class FormComponent implements OnInit {
 
   excludeChars: string[] = [];
   includeChars: string[] = [];
-  includeIndexChars: CharacterIndexIncludes[] = [];
+  includeIndexChars: IndexCharacter[] = [];
   wordleForm: FormGroup;
   includeCharsWithIndex: FormArray;
+  includeCharsWithWrongIndexes: FormArray;
 
   ngOnInit(): void {
     this.createForm();
     this.subscribeToValueChanges();
   }
 
-  removeFormControl(index: number) {
+  removeFormControl(index: number, formArray: FormArray) {
     const currentFormValue = this.wordleForm.value;
 
-    this.includeCharsWithIndex.removeAt(index);
+    formArray.removeAt(index);
 
     this.wordleForm.patchValue(currentFormValue);
   }
 
-  addFormControl() {
+  addFormControlCorrectIndex() {
     const currentFormValue = this.wordleForm.value;
     this.includeCharsWithIndex.push(
       new FormGroup({
@@ -42,14 +46,32 @@ export class FormComponent implements OnInit {
     this.wordleForm.patchValue(currentFormValue);
   }
 
+  addFormControlWrongIndex() {
+    const currentFormValue = this.wordleForm.value;
+    this.includeCharsWithWrongIndexes.push(
+      new FormGroup({
+        character: new FormControl(''),
+        indexes: new FormControl(''),
+      })
+    );
+
+    this.wordleForm.patchValue(currentFormValue);
+  }
+
   private createForm() {
     this.wordleForm = new FormGroup({
       excludeCharacters: new FormControl(''),
-      includeCharacters: new FormControl(''),
+      // includeCharacters: new FormControl(''),
       includeCharsWithIndex: new FormArray([
         new FormGroup({
           character: new FormControl(''),
           index: new FormControl(''),
+        }),
+      ]),
+      includeCharsWithWrongIndexes: new FormArray([
+        new FormGroup({
+          character: new FormControl(''),
+          indexes: new FormControl(''),
         }),
       ]),
     });
@@ -57,27 +79,62 @@ export class FormComponent implements OnInit {
     this.includeCharsWithIndex = this.wordleForm.get(
       'includeCharsWithIndex'
     ) as FormArray;
+
+    this.includeCharsWithWrongIndexes = this.wordleForm.get(
+      'includeCharsWithWrongIndexes'
+    ) as FormArray;
   }
 
   private subscribeToValueChanges() {
     this.wordleForm.valueChanges
       .pipe(debounceTime(500))
       .subscribe(
-        ({ excludeCharacters, includeCharacters, includeCharsWithIndex }) => {
+        ({
+          excludeCharacters,
+          includeCharsWithWrongIndexes,
+          includeCharsWithIndex,
+        }) => {
           const mappedExcludedChars = this.mapToArray(excludeCharacters);
 
-          const mappedIncludedChars = this.mapToArray(includeCharacters);
+          const mappedIncludedCharsWithWrongIndexes =
+            includeCharsWithWrongIndexes
+              .filter((x) => !!x.character)
+              .map((x) => ({
+                ...x,
+                indexes: x.indexes.split(','),
+              }));
+
           const mappedIncludedCharsWithIndex = includeCharsWithIndex.filter(
             (x) => !!x.character
           );
 
-          this.newResult.emit({
-            mappedExcludedChars,
-            mappedIncludedChars,
-            mappedIncludedCharsWithIndex,
-          });
+          if (
+            this.formHasAnyValues(
+              mappedExcludedChars,
+              mappedIncludedCharsWithWrongIndexes,
+              mappedIncludedCharsWithIndex
+            )
+          ) {
+            this.newResult.emit({
+              mappedExcludedChars,
+              mappedIncludedCharsWithWrongIndexes,
+              mappedIncludedCharsWithIndex,
+            });
+          }
         }
       );
+  }
+
+  private formHasAnyValues(
+    mappedExcludedChars: string[],
+    mappedIncludedCharsWithWrongIndexes: MultipleIndexCharacter[],
+    includeLettersOnCorrectPlace: IndexCharacter[]
+  ): boolean {
+    return (
+      mappedExcludedChars.length > 0 ||
+      mappedIncludedCharsWithWrongIndexes.length > 0 ||
+      includeLettersOnCorrectPlace.length > 0
+    );
   }
 
   private mapToArray(input: string): string[] {

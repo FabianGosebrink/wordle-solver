@@ -3,7 +3,10 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { WordleHelperService } from '../services/wordle-helper.service';
-import { CharacterIndexIncludes } from '../services/character-index-includes';
+import {
+  IndexCharacter,
+  MultipleIndexCharacter,
+} from '../services/character-index-includes';
 
 @Component({
   selector: 'app-shell',
@@ -30,24 +33,24 @@ export class ShellComponent implements OnInit {
 
   onNewResult({
     mappedExcludedChars,
-    mappedIncludedChars,
+    mappedIncludedCharsWithWrongIndexes,
     mappedIncludedCharsWithIndex,
   }) {
     this.updateList(
       mappedExcludedChars,
-      mappedIncludedChars,
+      mappedIncludedCharsWithWrongIndexes,
       mappedIncludedCharsWithIndex
     );
   }
 
   private updateList(
     excludeChars: string[],
-    includeChars: string[],
-    includeLettersOnCorrectPlace: CharacterIndexIncludes[]
+    mappedIncludedCharsWithWrongIndexes: MultipleIndexCharacter[],
+    includeLettersOnCorrectPlace: IndexCharacter[]
   ) {
     this.result = this.wordleHelper.solve(
       excludeChars,
-      includeChars,
+      mappedIncludedCharsWithWrongIndexes,
       includeLettersOnCorrectPlace
     );
   }

@@ -26,10 +26,12 @@
       <span>wordle-helper</span>
     </mat-toolbar>
 
-    <app-form (newResult)="onNewResult($event)"></app-form>
+    <div class="content">
+      <app-form (newResult)="onNewResult($event)"></app-form>
 
-    <div style="margin-top: 20px">
-      <app-result [result]="result"></app-result>
+      <div style="margin-top: 20px">
+        <app-result [result]="result"></app-result>
+      </div>
     </div>
     <div></div>
   </mat-sidenav-content>

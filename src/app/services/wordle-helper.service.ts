@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { CharacterIndexIncludes } from './character-index-includes';
+import { stringify } from 'querystring';
+import {
+  IndexCharacter,
+  MultipleIndexCharacter,
+} from './character-index-includes';
 import { WORDS } from './words';
 
 @Injectable({
@@ -8,15 +12,15 @@ import { WORDS } from './words';
 export class WordleHelperService {
   solve(
     excludeChars: string[],
-    includeChars: string[],
-    includeCharsWithIndex: CharacterIndexIncludes[]
+    includeCharsWithWrongIndexes: MultipleIndexCharacter[],
+    includeCharsWithIndex: IndexCharacter[]
   ): string[] {
     const words = WORDS;
 
     return this.filterWords(
       words,
       excludeChars,
-      includeChars,
+      includeCharsWithWrongIndexes,
       includeCharsWithIndex
     );
   }
@@ -24,13 +28,13 @@ export class WordleHelperService {
   private filterWords(
     words: string[],
     excludeChars: string[],
-    includeChars: string[],
-    includeCharsWithIndex: CharacterIndexIncludes[]
+    includeCharsWithWrongIndexes: MultipleIndexCharacter[],
+    includeCharsWithIndex: IndexCharacter[]
   ) {
     const wordsWithCharsExcluded = this.excludeChars(words, excludeChars);
-    const wordsWithCharsIncluded = this.includeChars(
+    const wordsWithCharsIncluded = this.includeCharsByWrongIndex(
       wordsWithCharsExcluded,
-      includeChars
+      includeCharsWithWrongIndexes
     );
 
     return this.filterWordByCharsOnCorrectPlace(
@@ -39,19 +43,42 @@ export class WordleHelperService {
     );
   }
 
-  private includeChars(words: string[], includeChars: string[]) {
-    if (includeChars.length === 0) {
+  private includeCharsByWrongIndex(
+    words: string[],
+    includeCharsWithWrongIndexes: MultipleIndexCharacter[]
+  ) {
+    if (includeCharsWithWrongIndexes?.length === 0) {
       return words;
     }
 
-    return words.filter((word) =>
-      this.wordContainsAllOfChars(word, includeChars)
-    );
+    const hasEntriesToProcess =
+      includeCharsWithWrongIndexes.map((x) => x.character).filter((x) => !!x)
+        .length > 0;
+
+    if (!hasEntriesToProcess) {
+      return words;
+    }
+
+    const allChars = includeCharsWithWrongIndexes.map((x) => x.character);
+
+    const wordsIncludingChar = this.includeChars(words, allChars);
+
+    let toReturn = [];
+
+    includeCharsWithWrongIndexes.forEach(({ character, indexes }) => {
+      const filtered = wordsIncludingChar.filter(
+        (word) => !this.wordHasCharOnAnyIndex(word, character, indexes)
+      );
+
+      toReturn.push(...filtered);
+    });
+
+    return toReturn;
   }
 
   private filterWordByCharsOnCorrectPlace(
     filteredWords: string[],
-    includeLettersOnCorrectPlace: CharacterIndexIncludes[]
+    includeLettersOnCorrectPlace: IndexCharacter[]
   ): string[] {
     if (!includeLettersOnCorrectPlace) {
       return filteredWords;
@@ -81,12 +108,6 @@ export class WordleHelperService {
     return filtered.filter(Boolean);
   }
 
-  private containsCharAtIndex(word: string, character: string, index: number) {
-    const allCharsOfWord = word.split('');
-
-    return allCharsOfWord[index] === character;
-  }
-
   private excludeChars(words: string[], excludeChars: string[]): string[] {
     if (excludeChars.length === 0) {
       return words;
@@ -94,6 +115,16 @@ export class WordleHelperService {
 
     return words.filter(
       (word) => !this.wordContainsAnyOfChars(word, excludeChars)
+    );
+  }
+
+  private includeChars(words: string[], includeChars: string[]): string[] {
+    if (includeChars.length === 0) {
+      return words;
+    }
+
+    return words.filter((word) =>
+      this.wordContainsAnyOfChars(word, includeChars)
     );
   }
 
@@ -107,5 +138,18 @@ export class WordleHelperService {
 
   private wordContainsChar(word: string, char: string): boolean {
     return word.split('').includes(char);
+  }
+
+  private wordHasCharOnAnyIndex(
+    word: string,
+    char: string,
+    indexes: number[]
+  ): boolean {
+    return indexes.some((index) => this.containsCharAtIndex(word, char, index));
+  }
+  private containsCharAtIndex(word: string, character: string, index: number) {
+    const allCharsOfWord = word.split('');
+
+    return allCharsOfWord[index] === character;
   }
 }
