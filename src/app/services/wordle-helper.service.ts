@@ -61,7 +61,7 @@ export class WordleHelperService {
 
     const allChars = includeCharsWithWrongIndexes.map((x) => x.character);
 
-    const wordsIncludingChar = this.includeChars(words, allChars);
+    const wordsIncludingChar = this.includeAllChars(words, allChars);
 
     let toReturn = [];
 
@@ -118,13 +118,13 @@ export class WordleHelperService {
     );
   }
 
-  private includeChars(words: string[], includeChars: string[]): string[] {
+  private includeAllChars(words: string[], includeChars: string[]): string[] {
     if (includeChars.length === 0) {
       return words;
     }
 
     return words.filter((word) =>
-      this.wordContainsAnyOfChars(word, includeChars)
+      this.wordContainsAllOfChars(word, includeChars)
     );
   }
 

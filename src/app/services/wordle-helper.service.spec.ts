@@ -120,8 +120,6 @@ describe('WordleHelperService', () => {
       includedCharsWithCorrectIndex
     );
 
-    console.log(result);
-
     expect(result).toEqual(['abcde', 'aaeri', 'aaerx']);
   });
 
@@ -185,5 +183,66 @@ describe('WordleHelperService', () => {
     );
 
     expect(result).toEqual(['aaeri', 'aaerx']);
+  });
+
+  it('should deliver correct result when including chars with not correct index 2', () => {
+    const words = [
+      'humph',
+      'blush',
+      'ivory',
+      'swirl',
+      'fjord',
+      'motor',
+      'thumb',
+      'dowry',
+      'ought',
+      'blurt',
+      'pithy',
+      'robot',
+      'light',
+      'humor',
+      'slosh',
+      'story',
+      'showy',
+      'rusty',
+      'hydro',
+      'roomy',
+      'youth',
+      'whoop',
+      'sooth',
+      'glory',
+      'usurp',
+      'bough',
+      'sloth',
+      'vigor',
+      'howdy',
+      'floor',
+      'quirk',
+      'photo',
+      'glyph',
+      'hippy',
+      'tough',
+      'humid',
+      'lymph',
+    ];
+
+    const excludechars = ['c,a,n,e'];
+    const includedCharsButWrongIndex: MultipleIndexCharacter[] = [
+      { character: 'r', indexes: [1, 2] },
+      { character: 'h', indexes: [1] },
+    ];
+
+    const includedCharsWithCorrectIndex: IndexCharacter[] = [];
+
+    const result = (service as any).filterWords(
+      words,
+      excludechars,
+      includedCharsButWrongIndex,
+      includedCharsWithCorrectIndex
+    );
+
+    console.log(result);
+
+    expect(result).toEqual(['humor', 'hydro', 'humor', 'hydro']);
   });
 });
