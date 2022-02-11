@@ -37,7 +37,7 @@ export class WordleHelperService {
       includeCharsWithWrongIndexes
     );
 
-    return this.filterWordByCharsOnCorrectPlace(
+    return this.filterWordByCharsOnCorrectIndex(
       wordsWithCharsIncluded,
       includeCharsWithIndex
     );
@@ -60,36 +60,65 @@ export class WordleHelperService {
     }
 
     const allChars = includeCharsWithWrongIndexes.map((x) => x.character);
-
     const wordsIncludingChar = this.includeAllChars(words, allChars);
 
     let toReturn = [];
 
-    includeCharsWithWrongIndexes.forEach(({ character, indexes }) => {
-      const filtered = wordsIncludingChar.filter(
-        (word) => !this.wordHasCharOnAnyIndex(word, character, indexes)
-      );
-
-      toReturn.push(...filtered);
+    wordsIncludingChar.forEach((word) => {
+      if (
+        !this.wordContainsAnyOfCharsOnIndex(word, includeCharsWithWrongIndexes)
+      ) {
+        toReturn.push(word);
+      }
     });
 
     return toReturn;
   }
 
-  private filterWordByCharsOnCorrectPlace(
+  private wordContainsAnyOfCharsOnIndex(
+    word,
+    includeCharsWithWrongIndexes: MultipleIndexCharacter[]
+  ) {
+    for (const index of includeCharsWithWrongIndexes) {
+      if (this.hasWordAnyCharOnIndex(word, index)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private hasWordAnyCharOnIndex(
+    word,
+    includeCharsWithWrongIndex: MultipleIndexCharacter
+  ) {
+    const allChars = word.split('');
+
+    const { indexes, character } = includeCharsWithWrongIndex;
+
+    for (const index of indexes) {
+      if (allChars[index] === character) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private filterWordByCharsOnCorrectIndex(
     filteredWords: string[],
-    includeLettersOnCorrectPlace: IndexCharacter[]
+    includeLettersOnCorrectIndex: IndexCharacter[]
   ): string[] {
-    if (!includeLettersOnCorrectPlace) {
+    if (!includeLettersOnCorrectIndex) {
       return filteredWords;
     }
 
-    if (includeLettersOnCorrectPlace?.length === 0) {
+    if (includeLettersOnCorrectIndex?.length === 0) {
       return filteredWords;
     }
 
     const hasEntriesToProcess =
-      includeLettersOnCorrectPlace.map((x) => x.character).filter((x) => !!x)
+      includeLettersOnCorrectIndex.map((x) => x.character).filter((x) => !!x)
         .length > 0;
 
     if (!hasEntriesToProcess) {
@@ -97,7 +126,7 @@ export class WordleHelperService {
     }
 
     const filtered = filteredWords.map((word) => {
-      const wordContainsEveryCharAtIndex = includeLettersOnCorrectPlace.every(
+      const wordContainsEveryCharAtIndex = includeLettersOnCorrectIndex.every(
         ({ character, index }) =>
           this.containsCharAtIndex(word, character, index)
       );
@@ -147,6 +176,7 @@ export class WordleHelperService {
   ): boolean {
     return indexes.some((index) => this.containsCharAtIndex(word, char, index));
   }
+
   private containsCharAtIndex(word: string, character: string, index: number) {
     const allCharsOfWord = word.split('');
 

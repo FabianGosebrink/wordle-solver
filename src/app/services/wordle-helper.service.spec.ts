@@ -5,6 +5,7 @@ import {
 } from './character-index-includes';
 
 import { WordleHelperService } from './wordle-helper.service';
+import { WORDS } from './words';
 
 describe('WordleHelperService', () => {
   let service: WordleHelperService;
@@ -186,46 +187,6 @@ describe('WordleHelperService', () => {
   });
 
   it('should deliver correct result when including chars with not correct index 2', () => {
-    const words = [
-      'humph',
-      'blush',
-      'ivory',
-      'swirl',
-      'fjord',
-      'motor',
-      'thumb',
-      'dowry',
-      'ought',
-      'blurt',
-      'pithy',
-      'robot',
-      'light',
-      'humor',
-      'slosh',
-      'story',
-      'showy',
-      'rusty',
-      'hydro',
-      'roomy',
-      'youth',
-      'whoop',
-      'sooth',
-      'glory',
-      'usurp',
-      'bough',
-      'sloth',
-      'vigor',
-      'howdy',
-      'floor',
-      'quirk',
-      'photo',
-      'glyph',
-      'hippy',
-      'tough',
-      'humid',
-      'lymph',
-    ];
-
     const excludechars = ['c,a,n,e'];
     const includedCharsButWrongIndex: MultipleIndexCharacter[] = [
       { character: 'r', indexes: [1, 2] },
@@ -235,14 +196,131 @@ describe('WordleHelperService', () => {
     const includedCharsWithCorrectIndex: IndexCharacter[] = [];
 
     const result = (service as any).filterWords(
-      words,
+      WORDS,
       excludechars,
       includedCharsButWrongIndex,
       includedCharsWithCorrectIndex
     );
 
-    console.log(result);
+    expect(result).not.toContain('rhino');
+  });
 
-    expect(result).toEqual(['humor', 'hydro', 'humor', 'hydro']);
+  describe('includeCharsByWrongIndex', () => {
+    it('should work', () => {
+      const indexChars = [];
+      const excludechars = [];
+      const includedCharsButWrongIndex: MultipleIndexCharacter[] = [
+        { character: 'r', indexes: [1, 2] },
+        { character: 'h', indexes: [1] },
+      ];
+
+      const result: string[] = (service as any).includeCharsByWrongIndex(
+        WORDS,
+        includedCharsButWrongIndex
+      );
+
+      const correct1 = result.every((word) => word.split('')[1] !== 'r');
+      expect(correct1).toBe(true);
+
+      const correct2 = result.every((word) => word.split('')[2] !== 'r');
+      expect(correct2).toBe(true);
+
+      const correct3 = result.every((word) => word.split('')[1] !== 'h');
+
+      expect(correct3).toBe(true);
+    });
+  });
+
+  describe('filterWordByCharsOnCorrectIndex', () => {
+    it('should work', () => {
+      const indexChars = [
+        {
+          character: 'h',
+          index: 1,
+        },
+      ];
+
+      const excludechars = [];
+      const includedCharsButWrongIndex: MultipleIndexCharacter[] = [];
+
+      const result: string[] = (service as any).filterWords(
+        WORDS,
+        excludechars,
+        includedCharsButWrongIndex,
+        indexChars
+      );
+
+      const everyWordHasCharOnIndex = result.every(
+        (word) => word.split('')[1] === 'h'
+      );
+
+      expect(everyWordHasCharOnIndex).toBe(true);
+    });
+  });
+
+  describe('containsCharAtIndex', () => {
+    [
+      {
+        word: 'henlo',
+        character: 'h',
+        index: 0,
+        result: true,
+      },
+      {
+        word: 'henlo',
+        character: 'e',
+        index: 0,
+        result: false,
+      },
+      {
+        word: 'henloh',
+        character: 'h',
+        index: 5,
+        result: true,
+      },
+    ].forEach(({ word, character, index, result }) => {
+      it(`${word} should have ${character} on index ${index} --> ${result}`, () => {
+        const res = (service as any).containsCharAtIndex(
+          word,
+          character,
+          index
+        );
+
+        expect(res).toBe(result);
+      });
+    });
+  });
+
+  describe('wordHasCharOnAnyIndex', () => {
+    [
+      {
+        word: 'henlo',
+        character: 'h',
+        indexes: [0, 1, 2],
+        result: true,
+      },
+      {
+        word: 'henlo',
+        character: 'e',
+        indexes: [0, 3, 4],
+        result: false,
+      },
+      {
+        word: 'henloh',
+        character: 'h',
+        indexes: [5],
+        result: true,
+      },
+    ].forEach(({ word, character, indexes, result }) => {
+      it(`${word} should have ${character} on index ${indexes} --> ${result}`, () => {
+        const res = (service as any).wordHasCharOnAnyIndex(
+          word,
+          character,
+          indexes
+        );
+
+        expect(res).toBe(result);
+      });
+    });
   });
 });
