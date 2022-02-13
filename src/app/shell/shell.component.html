@@ -29,10 +29,7 @@
     <div class="content">
       <app-form (newResult)="onNewResult($event)"></app-form>
 
-      <div style="margin-top: 20px">
-        <app-result [result]="result"></app-result>
-      </div>
+      <app-result [result]="result"></app-result>
     </div>
-    <div></div>
   </mat-sidenav-content>
 </mat-sidenav-container>

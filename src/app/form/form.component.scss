@@ -1,20 +1,50 @@
-.example-container .mat-form-field + .mat-form-field {
-  margin-left: 8px;
+* {
+  box-sizing: border-box;
 }
 
-.example-container .mat-form-field {
-  width: 220px;
-}
-
-.example-container form {
-  margin-bottom: 20px;
-}
-
-.example-container form > * {
+.columns {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
   margin: 5px 0;
 }
 
-.box {
-  display: flex;
-  justify-content: space-between;
+.column {
+  flex: 1;
+  margin: 2px;
+  &:first-child {
+    margin-left: 0;
+  }
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.columns .mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}
+
+@media screen and (max-width: 980px) {
+  .columns .column {
+    margin-bottom: 5px;
+    flex-basis: 40%;
+    &:nth-last-child(2) {
+      margin-right: 0;
+    }
+    &:last-child {
+      flex-basis: 100%;
+      margin: 0;
+    }
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .columns .column {
+    flex-basis: 100%;
+    margin: 0 0 5px 0;
+  }
+
+  .columns .mat-form-field + .mat-form-field {
+    margin-left: 3px;
+  }
 }
