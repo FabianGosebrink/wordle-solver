@@ -3,10 +3,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { WordleHelperService } from '../services/wordle-helper.service';
-import {
-  IndexCharacter,
-  MultipleIndexCharacter,
-} from '../services/character-index-includes';
+import { IndexCharacter, MultipleIndexCharacter } from '../services/models';
 
 @Component({
   selector: 'app-shell',

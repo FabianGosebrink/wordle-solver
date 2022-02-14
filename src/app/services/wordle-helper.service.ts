@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { stringify } from 'querystring';
-import {
-  IndexCharacter,
-  MultipleIndexCharacter,
-} from './character-index-includes';
+import { IndexCharacter, MultipleIndexCharacter } from './models';
 import { WORDS } from './words';
 
 @Injectable({

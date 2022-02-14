@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  IndexCharacter,
-  MultipleIndexCharacter,
-} from './character-index-includes';
+import { IndexCharacter, MultipleIndexCharacter } from './models';
 
 import { WordleHelperService } from './wordle-helper.service';
 import { WORDS } from './words';

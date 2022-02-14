@@ -1,10 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs';
-import {
-  IndexCharacter,
-  MultipleIndexCharacter,
-} from '../services/character-index-includes';
+import { IndexCharacter, MultipleIndexCharacter } from '../services/models';
 
 @Component({
   selector: 'app-form',
