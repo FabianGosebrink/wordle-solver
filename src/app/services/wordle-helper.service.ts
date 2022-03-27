@@ -166,14 +166,6 @@ export class WordleHelperService {
     return word.split('').includes(char);
   }
 
-  private wordHasCharOnAnyIndex(
-    word: string,
-    char: string,
-    indexes: number[]
-  ): boolean {
-    return indexes.some((index) => this.containsCharAtIndex(word, char, index));
-  }
-
   private containsCharAtIndex(word: string, character: string, index: number) {
     const allCharsOfWord = word.split('');
 

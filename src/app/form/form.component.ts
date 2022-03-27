@@ -58,7 +58,6 @@ export class FormComponent implements OnInit {
   private createForm() {
     this.wordleForm = new FormGroup({
       excludeCharacters: new FormControl(''),
-      // includeCharacters: new FormControl(''),
       includeCharsWithIndex: new FormArray([
         new FormGroup({
           character: new FormControl(''),
@@ -98,12 +97,17 @@ export class FormComponent implements OnInit {
               .filter((x) => !!x.character)
               .map((x) => ({
                 ...x,
-                indexes: x.indexes.split(','),
+                indexes: this.removeCharFromValue(x.indexes, [',']).map(
+                  (x) => +x - 1
+                ),
               }));
 
-          const mappedIncludedCharsWithIndex = includeCharsWithIndex.filter(
-            (x) => !!x.character
-          );
+          const mappedIncludedCharsWithIndex = includeCharsWithIndex
+            .filter((x) => !!x.character)
+            .map((x) => ({
+              ...x,
+              index: +x.index - 1,
+            }));
 
           if (
             this.formHasAnyValues(
@@ -135,6 +139,15 @@ export class FormComponent implements OnInit {
   }
 
   private mapToArray(input: string): string[] {
-    return input.split(',').filter((x) => !!x);
+    return this.removeCharFromValue(input, [',']).filter((x) => !!x);
+  }
+
+  private removeCharFromValue(value: string, charsToRemove: string[]) {
+    let copy = value.slice();
+    charsToRemove.forEach((charToRemove) => {
+      copy = copy.replace(charToRemove, '');
+    });
+
+    return copy.split('');
   }
 }
